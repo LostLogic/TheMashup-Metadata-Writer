@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:TheMashup_Metadata_Writer.Converters"
+             x:Class="TheMashup_Metadata_Writer.ContentViews.HeaderView"
+             x:Name="headerView">
+
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <converters:BoolToInverseBoolConverter x:Key="BoolInverterConverter" />
+        </ResourceDictionary>
+    </ContentView.Resources>
+    
+    <Grid HorizontalOptions="FillAndExpand" ColumnDefinitions="*,*">
+        <Grid>
+            <Label 
+                Text="THEMASHUP"
+                FontFamily="BLACKHAWK"
+                FontSize="Header"
+                VerticalOptions="Center"
+                TextColor="{AppThemeBinding Dark={StaticResource White}, Light={StaticResource PrimaryDarkText}}"
+                HorizontalOptions="Start" />
+            <Label
+                Text="Metadata Writer"
+                FontFamily="BLACKHAWK"
+                VerticalOptions="Center"
+                HorizontalOptions="StartAndExpand"
+                TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Primary}}"
+                FontSize="Large"
+                TranslationX="50"
+                TranslationY="20" />
+        </Grid>
+        <HorizontalStackLayout Grid.Column="1" HorizontalOptions="EndAndExpand">
+            <HorizontalStackLayout VerticalOptions="Center" Margin="0,0,12,0" IsVisible="{Binding IsLoggedIn}">
+                <Label Text="User" Margin="0,0,6,0" FontSize="Small" FontFamily="MarkPro-Medium" TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Primary}}" />
+                <Label Text="{Binding LoggedInEmail}" FontSize="Small" FontFamily="MarkPro-Medium" TextColor="{AppThemeBinding Dark={StaticResource White}, Light={StaticResource PrimaryDarkText}}" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout VerticalOptions="Center" Margin="0,0,12,0" IsVisible="{Binding IsLoggedIn, Converter={StaticResource BoolInverterConverter}}">
+                <Label Text="Not logged in" Margin="0,0,6,0" FontSize="Small" FontFamily="MarkPro-Medium" TextColor="{AppThemeBinding Dark={StaticResource White}, Light={StaticResource PrimaryDarkText}}" />
+            </HorizontalStackLayout>
+            <Button Text="🔑" Margin="10" Clicked="LoginButton_Clicked" />
+            <Button Text="⚙️" Margin="10" Clicked="SettingsButton_Clicked"/>
+        </HorizontalStackLayout>
+    </Grid>
+</ContentView>

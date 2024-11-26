@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:TheMashup_Metadata_Writer.ViewModels"
+             xmlns:cv="clr-namespace:TheMashup_Metadata_Writer.ContentViews"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:converters="clr-namespace:TheMashup_Metadata_Writer.Converters"
+             x:Class="TheMashup_Metadata_Writer.MainPage"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.BindingContext>
+        <vm:SongViewModel />
+    </ContentPage.BindingContext>
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:AndBooleanConverter x:Key="AndBooleanConverter" />
+            <Style x:Key="SelectableGridStyle" TargetType="Grid">
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Style.Triggers>
+                    <DataTrigger TargetType="Grid" Binding="{Binding Selected}" Value="True">
+                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Primary}}" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <AbsoluteLayout>
+        <ScrollView AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+            <VerticalStackLayout
+                Padding="30,0"
+                Spacing="25">
+                <cv:HeaderView HorizontalOptions="FillAndExpand" SettingsButtonClicked="HeaderView_SettingsButtonClicked" LoginButtonClicked="HeaderView_LoginButtonClicked" LoggedIn="{Binding IsLoggedIn}" Email="{Binding LoggedInEmail}" />            
+                
+                <Grid Padding="10" ColumnDefinitions="*,150" Grid.Row="0">
+                    <StackLayout Grid.Column="0" VerticalOptions="Center">
+                        <Label Text="Folder Location" Grid.Column="0" FontAttributes="Bold" />
+                        <Label Grid.Column="0" Text="{Binding SelectedFolderPath}" />
+                    </StackLayout>
+                    <Button Grid.Column="1" Margin="10" Text="Browse Folder" Clicked="OnBrowseFolderClicked" />
+                </Grid>
+
+                <StackLayout Orientation="Horizontal" HorizontalOptions="End">
+                    <Label Text="Show only untagged files" VerticalOptions="Center" Margin="10" />
+                    <CheckBox IsChecked="{Binding ShowOnlyUntagged}" Margin="10"/>
+                </StackLayout>
+
+                <CollectionView x:Name="colviewMp3Files" ItemsSource="{Binding FilteredMp3Files, Mode=TwoWay}" SelectedItem="{Binding SelectedMp3File, Mode=TwoWay}" MaximumHeightRequest="350">
+                    <CollectionView.Header>
+                        <Grid Padding="10" ColumnDefinitions="*,*,60,50">
+                            <Label Text="Artist" Grid.Column="0" FontAttributes="Bold" />
+                            <Label Text="Title" Grid.Column="1" FontAttributes="Bold" />
+                            <Label Text="Tagged" Grid.Column="2" FontAttributes="Bold" />
+                        </Grid>
+                    </CollectionView.Header>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Padding="10" ColumnDefinitions="*,*,60,50" Style="{StaticResource SelectableGridStyle}">
+                                <Label Text="{Binding Artist}" Grid.Column="0" VerticalOptions="Center" />
+                                <Label Text="{Binding Title}" Grid.Column="1" VerticalOptions="Center" />
+                                <Label Text="✅" Grid.Column="2" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding Tagged}" />
+                                <Button Text="🔍" Grid.Column="3" VerticalOptions="Center" Command="{Binding Path=BindingContext.GetMetadataCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" CommandParameter="{Binding .}" IsEnabled="{Binding SearchEnabledAndLoggedIn, Source={RelativeSource AncestorType={x:Type vm:SongViewModel}}}" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Grid ColumnDefinitions="*,120,50">
+                    <Button Grid.Column="0" Text="Batch Search and Write Metadata to files" Clicked="OnBatchWriteClicked" Margin="10" VerticalOptions="Center" IsEnabled="{Binding SearchEnabledAndLoggedIn}" />
+                    <Label Grid.Column="1" Text="Retag all files" FontSize="Body" Margin="10" VerticalOptions="Center" />
+                    <CheckBox Grid.Column="2" IsChecked="{Binding RetagBatch, Mode=TwoWay}" Margin="10" VerticalOptions="Center" />
+                </Grid>
+                
+                <Label Text="Manual search" />
+                <Grid ColumnDefinitions="*,*,55" Padding="10">
+                    <Entry Grid.Column="0" x:Name="ArtistEntry" Placeholder="Artist" Margin="5" Text="{Binding SelectedMp3File.Artist, Mode=OneWay}" />
+                    <Entry Grid.Column="1" x:Name="TitleEntry" Placeholder="Title" Margin="5" Text="{Binding SelectedMp3File.Title, Mode=OneWay}" />
+                    <Button Grid.Column="2" Text="🔍" Clicked="OnSearchButtonClicked" Margin="5" IsEnabled="{Binding SearchEnabledAndLoggedIn}" />
+                </Grid>
+
+                <Label Text="{Binding SearchResultMessage}" />
+                
+                <CollectionView ItemsSource="{Binding Songs}" MaximumHeightRequest="500">
+                    <CollectionView.Header>
+                        <Grid Padding="10" ColumnDefinitions="4*,2*,*,*,*,*,*,*,50">
+                            <Label Text="Title" Grid.Column="0" FontAttributes="Bold" />
+                            <Label Text="Artist" Grid.Column="1" FontAttributes="Bold" />
+                            <Label Text="Genres" Grid.Column="2" FontAttributes="Bold" />
+                            <Label Text="Sub Genres" Grid.Column="3" FontAttributes="Bold" />
+                            <Label Text="Mashup" Grid.Column="4" FontAttributes="Bold" />
+                            <Label Text="BPM" Grid.Column="5" FontAttributes="Bold" />
+                            <Label Text="Rating" Grid.Column="6" FontAttributes="Bold" />
+                            <Label Text="Uploaded" Grid.Column="7" FontAttributes="Bold" />
+                        </Grid>
+                    </CollectionView.Header>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Padding="10" ColumnDefinitions="4*,2*,*,*,*,*,*,*,50">
+                                <Label Text="{Binding Title}" Grid.Column="0" VerticalOptions="Center" />
+                                <Label Text="{Binding Artist}" Grid.Column="1" VerticalOptions="Center" />
+                                <Label Text="{Binding GenreString}" Grid.Column="2" VerticalOptions="Center" />
+                                <Label Text="{Binding ClassificationsString}" Grid.Column="3" VerticalOptions="Center" />
+                                <Label Text="{Binding TheMashupClassificationString}" Grid.Column="4" VerticalOptions="Center" />
+                                <Label Text="{Binding BPM}" Grid.Column="5" VerticalOptions="Center" />
+                                <Label Text="{Binding Rating}" Grid.Column="6" VerticalOptions="Center" />
+                                <Label Text="{Binding Uploaded, StringFormat='{0:dd MMM yyyy}'}" Grid.Column="7" VerticalOptions="Center" />
+                                <Button Text="📝" Grid.Column="8"  Command="{Binding Path=BindingContext.WriteMetadataCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" CommandParameter="{Binding .}" VerticalOptions="Center" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+        
+        <!-- Activity blocking overlay -->
+        <Grid AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1" IsVisible="{Binding IsSearching}">
+            <BoxView Color="Black" Opacity="0.5" />
+            <VerticalStackLayout VerticalOptions="Center">
+                <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                    <ActivityIndicator IsRunning="{Binding IsSearching}" Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Primary}}" VerticalOptions="Center" Margin="10" />
+                    <Label Text="{Binding SearchActivityMessage}" FontSize="Medium" HorizontalOptions="Center" TextColor="White" Margin="10" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <Button x:Name="btnCancel" Text="CANCEL" WidthRequest="100" IsVisible="{Binding CancelButtonEnabled}" Clicked="BtnCancel_Clicked" />
+            </VerticalStackLayout>
+        </Grid>
+    </AbsoluteLayout>
+</ContentPage>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="TheMashup_Metadata_Writer.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:TheMashup_Metadata_Writer"
+    xmlns:cv="clr-namespace:TheMashup_Metadata_Writer.ContentViews"
+    xmlns:vm="clr-namespace:TheMashup_Metadata_Writer.ViewModels"
+    Shell.FlyoutBehavior="Flyout"
+    Title="TheMashup - Metadata Writer">
+
+    <Shell.BindingContext>
+        <vm:AppShellViewModel />
+    </Shell.BindingContext>
+
+    <Shell.FlyoutHeader>
+        <Label Text="DJ Catla Metadata Toolkit" HorizontalOptions="Center"/>
+    </Shell.FlyoutHeader>
+    <FlyoutItem Title="Home" Icon="home_icon.png">
+        <ShellContent Route="MainPage" ContentTemplate="{DataTemplate local:MainPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="CSV to Metadata Writer" Icon="second_icon.png">
+        <ShellContent Route="CSVPage" ContentTemplate="{DataTemplate local:CSVtoMetadataPage}" />
+    </FlyoutItem>
+    
+</Shell>
